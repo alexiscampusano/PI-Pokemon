@@ -1,4 +1,4 @@
-.pokeCard {
+.container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -8,9 +8,10 @@
   background-color: rgb(219, 175, 78);
   border-radius: 2rem;
   border: outset 5px rgb(121, 104, 7);
+  margin: 1rem;
 }
 
-.pokeCard:hover {
+.container:hover {
   border: outset 5px rgba(131, 124, 23, 0.582);
   background-color: rgba(223, 247, 14, 0.568);
 }
@@ -18,11 +19,11 @@
 .pokeSprite {
   width: 185px;
   height: 185px;
-  -moz-border-radius: 20px;
   border-radius: 6rem;
   border-color: rgb(255, 255, 255);
   background-color: rgb(255, 255, 255);
 }
+
 .name {
   margin-top: -20px;
   font-size: 1rem;
@@ -35,4 +36,13 @@
   margin: 2rem;
   font-size: 1.3rem;
   font-style: oblique;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.types h5 {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 1rem;
 }

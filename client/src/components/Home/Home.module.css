@@ -1,5 +1,69 @@
+.container {
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #e0f2f1, #fff);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.filters label {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.filters select,
+.filters button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #667eea;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filters select:hover,
+.filters button:hover {
+  background-color: #667eea;
+  color: white;
+}
+
 .cards {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #667eea;
+  background-color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #667eea;
+  color: white;
+}
+
+a {
+  text-decoration: none;
 }

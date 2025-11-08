@@ -1,9 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import styles from './LandingPage.module.css';
 
-const LandingPage = () => {
+const LandingPage: React.FC = () => {
   return (
-    <div>
+    <div className={styles.container}>
       <h1>Gotta Catch 'Em All</h1>
       <Link to="/pokemons">
         <button>Enter</button>
@@ -13,3 +13,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+

@@ -1,12 +1,18 @@
-import React from "react";
-import styles from "./Paginated.module.css";
+import styles from './Paginated.module.css';
 
-const Paginated = ({ pokemonsPerPage, allPokemons, paginated }) => {
-  const pageNumbers = [];
+interface PaginatedProps {
+  pokemonsPerPage: number;
+  allPokemons: number;
+  paginated: (pageNumber: number) => void;
+}
+
+const Paginated: React.FC<PaginatedProps> = ({ pokemonsPerPage, allPokemons, paginated }) => {
+  const pageNumbers: number[] = [];
 
   for (let i = 0; i < Math.ceil(allPokemons / pokemonsPerPage); i++) {
     pageNumbers.push(i + 1);
   }
+
   return (
     <nav>
       <ul className={styles.paginated}>
@@ -21,3 +27,4 @@ const Paginated = ({ pokemonsPerPage, allPokemons, paginated }) => {
 };
 
 export default Paginated;
+
