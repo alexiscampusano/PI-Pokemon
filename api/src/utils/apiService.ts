@@ -2,7 +2,7 @@ import axios from 'axios';
 import { PokemonAttributes } from '../types';
 
 const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2';
-const POKEMON_LIMIT = 40;
+const POKEMON_LIMIT = 1302; // Todos los pokémons disponibles en PokeAPI
 
 export const fetchPokemonFromAPI = async (): Promise<PokemonAttributes[]> => {
   try {
