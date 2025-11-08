@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchPokemonDetails, cleanDetails } from '../../redux/pokemonSlice';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import Loading from '../Loading/Loading';
+import { Loading } from '../../components';
+import { ROUTES } from '../../constants';
 import styles from './PokemonDetails.module.css';
 
 const PokemonDetails: React.FC = () => {
@@ -52,7 +53,7 @@ const PokemonDetails: React.FC = () => {
       ) : (
         <Loading />
       )}
-      <Link to="/pokemons">
+      <Link to={ROUTES.HOME}>
         <button>Back</button>
       </Link>
     </div>

@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createPokemon, fetchTypes } from '../../redux/pokemonSlice';
+import { createPokemon } from '../../redux/pokemonSlice';
 import { CreatePokemonPayload } from '../../types/api';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { useTypes } from '../../hooks';
+import { ROUTES } from '../../constants';
 import styles from './CreatePokemon.module.css';
 
 interface FormInput {
@@ -53,7 +55,8 @@ const validate = (input: FormInput): ValidationErrors => {
 const CreatePokemon: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { types, loading, error } = useAppSelector((state) => state.pokemon);
+  const { loading, error } = useAppSelector((state) => state.pokemon);
+  const { types } = useTypes();
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   const [input, setInput] = useState<FormInput>({
@@ -108,7 +111,7 @@ const CreatePokemon: React.FC = () => {
       try {
         await dispatch(createPokemon(pokemonData)).unwrap();
         alert('Pokemon created successfully!');
-        navigate('/pokemons');
+        navigate(ROUTES.HOME);
       } catch (err) {
         alert(`Error: ${error || 'Failed to create pokemon'}`);
       }
@@ -125,13 +128,9 @@ const CreatePokemon: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    dispatch(fetchTypes());
-  }, [dispatch]);
-
   return (
     <div className={styles.container}>
-      <Link to="/pokemons">
+      <Link to={ROUTES.HOME}>
         <button>Back</button>
       </Link>
       <h1>Create Pokemon!</h1>

@@ -1,18 +1,38 @@
 import { Routes, Route } from 'react-router-dom';
-import LandingPage from './components/LandingPage/LandingPage';
-import Home from './components/Home/Home';
-import CreatePokemon from './components/CreatePokemon/CreatePokemon';
-import PokemonDetails from './components/PokemonDetails/PokemonDetails';
+import { MainLayout } from './layouts';
+import { Landing, Home, CreatePokemon, PokemonDetails } from './pages';
+import { ROUTES } from './constants';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/pokemons" element={<Home />} />
-        <Route path="/details/:id" element={<PokemonDetails />} />
-        <Route path="/pokemon" element={<CreatePokemon />} />
+        <Route path={ROUTES.LANDING} element={<Landing />} />
+        <Route
+          path={ROUTES.HOME}
+          element={
+            <MainLayout>
+              <Home />
+            </MainLayout>
+          }
+        />
+        <Route
+          path={ROUTES.POKEMON_DETAILS}
+          element={
+            <MainLayout>
+              <PokemonDetails />
+            </MainLayout>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_POKEMON}
+          element={
+            <MainLayout>
+              <CreatePokemon />
+            </MainLayout>
+          }
+        />
       </Routes>
     </div>
   );

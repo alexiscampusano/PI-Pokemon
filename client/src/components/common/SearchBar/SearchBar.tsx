@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { setFilters } from '../../redux/pokemonSlice';
-import { useAppDispatch } from '../../redux/hooks';
+import { setFilters } from '../../../redux/pokemonSlice';
+import { useAppDispatch } from '../../../redux/hooks';
 import styles from './SearchBar.module.css';
 
 const SearchBar: React.FC = () => {

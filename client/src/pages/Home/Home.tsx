@@ -1,28 +1,15 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  fetchPokemons,
-  fetchTypes,
-  setFilters,
-  resetFilters,
-  setPage,
-} from '../../redux/pokemonSlice';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import PokemonCard from '../PokemonCard/PokemonCard';
-import Paginated from '../Paginated/Paginated';
-import SearchBar from '../SearchBar/SearchBar';
+import { resetFilters, setPage, setFilters } from '../../redux/pokemonSlice';
+import { useAppDispatch } from '../../redux/hooks';
+import { usePokemon, useTypes } from '../../hooks';
+import { PokemonCard, Paginated, SearchBar } from '../../components';
+import { ROUTES } from '../../constants';
 import styles from './Home.module.css';
 
 const Home: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { pokemons, types, loading, pagination, filters } = useAppSelector(
-    (state) => state.pokemon
-  );
-
-  useEffect(() => {
-    dispatch(fetchPokemons(filters));
-    dispatch(fetchTypes());
-  }, [dispatch, filters]);
+  const { pokemons, loading, pagination, filters } = usePokemon();
+  const { types } = useTypes();
 
   const handleReload = () => {
     dispatch(resetFilters());
@@ -72,7 +59,7 @@ const Home: React.FC = () => {
   return (
     <div className={styles.container}>
       <button>
-        <Link to="/">Landing</Link>
+        <Link to={ROUTES.LANDING}>Landing</Link>
       </button>
       <div className={styles.filters}>
         <label>By Types</label>
@@ -126,7 +113,7 @@ const Home: React.FC = () => {
           currentPage={pagination.page}
         />
 
-        <Link to="/pokemon">Create Pokémon</Link>
+        <Link to={ROUTES.CREATE_POKEMON}>Create Pokémon</Link>
         <SearchBar />
 
         {loading ? (
