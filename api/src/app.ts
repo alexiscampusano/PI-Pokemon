@@ -20,7 +20,7 @@ server.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-server.use('/', routes);
+server.use('/api', routes);
 
 server.use(errorHandler);
 
