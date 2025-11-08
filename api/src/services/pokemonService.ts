@@ -29,14 +29,18 @@ export class PokemonService {
 
     const cachedPokemons = await cacheService.getAllPokemons();
 
-    if (cachedPokemons) {
+    if (cachedPokemons && cachedPokemons.length > 0) {
       console.warn('📦 Using cached pokemons from Redis');
       apiPokemons = cachedPokemons;
     } else {
       console.warn('🔄 Fetching pokemons from PokeAPI... this may take a few minutes');
       apiPokemons = await fetchPokemonFromAPI();
-      await cacheService.setAllPokemons(apiPokemons);
-      console.warn('✅ Pokemons cached successfully');
+      if (apiPokemons.length > 0) {
+        await cacheService.setAllPokemons(apiPokemons);
+        console.warn(`✅ ${apiPokemons.length} Pokemons cached successfully`);
+      } else {
+        console.warn('⚠️ No pokemons fetched from API, not caching');
+      }
     }
 
     const dbPokemons = await this.fetchFromDB();
@@ -62,7 +66,7 @@ export class PokemonService {
   async getById(id: string | number) {
     const isNumericId = typeof id === 'number' || !isNaN(Number(id));
 
-    if (isNumericId && Number(id) <= 1302) {
+    if (isNumericId && Number(id) <= 1025) {
       const cachedPokemons = await cacheService.getAllPokemons();
 
       if (cachedPokemons) {
