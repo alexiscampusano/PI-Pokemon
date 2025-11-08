@@ -17,11 +17,11 @@ const redis = new Redis({
 });
 
 redis.on('connect', () => {
-  console.warn('✅ Redis connected successfully');
+  console.warn('[Redis] Connected successfully');
 });
 
 redis.on('error', (err: Error) => {
-  console.error('❌ Redis connection error:', err);
+  console.error('[Redis] Connection error:', err);
 });
 
 export default redis;

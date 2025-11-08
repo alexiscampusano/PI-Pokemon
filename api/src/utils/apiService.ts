@@ -41,7 +41,7 @@ export const fetchPokemonFromAPI = async (): Promise<PokemonAttributes[]> => {
     const allResults = await Promise.all(pokemonDetailsPromises);
     const validPokemons = allResults.filter((p): p is PokemonAttributes => p !== null);
     
-    console.warn(`✅ Successfully fetched ${validPokemons.length}/${results.length} pokemons from API`);
+    console.warn(`[API] Successfully fetched ${validPokemons.length}/${results.length} pokemons from API`);
     return validPokemons;
   } catch (err) {
     console.error('Error fetching from PokeAPI:', err);
