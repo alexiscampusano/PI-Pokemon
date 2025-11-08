@@ -21,6 +21,22 @@ services:
     networks:
       - pokemon-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: pokemon-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - pokemon-network
+
   api:
     build:
       context: ./api
@@ -32,6 +48,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_HOST: postgres
       DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       PORT: 3001
     ports:
       - "3001:3001"
@@ -41,6 +59,8 @@ services:
       - api_dist:/app/dist
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - pokemon-network
@@ -68,6 +88,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local
   api_dist:
     driver: local

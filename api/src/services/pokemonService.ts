@@ -3,6 +3,7 @@ import { PokemonAttributes } from '../types';
 import { fetchPokemonFromAPI } from '../utils/apiService';
 import { HttpStatus } from '../constants/httpStatus';
 import { AppError } from '../middleware/errorHandler';
+import cacheService from './cacheService';
 
 interface ServiceFilters {
   page?: number;
@@ -24,7 +25,20 @@ interface ServiceFilters {
 
 export class PokemonService {
   async getAll(filters: ServiceFilters) {
-    const apiPokemons = await fetchPokemonFromAPI();
+    let apiPokemons: PokemonAttributes[] = [];
+
+    const cachedPokemons = await cacheService.getAllPokemons();
+
+    if (cachedPokemons) {
+      console.warn('📦 Using cached pokemons from Redis');
+      apiPokemons = cachedPokemons;
+    } else {
+      console.warn('🔄 Fetching pokemons from PokeAPI... this may take a few minutes');
+      apiPokemons = await fetchPokemonFromAPI();
+      await cacheService.setAllPokemons(apiPokemons);
+      console.warn('✅ Pokemons cached successfully');
+    }
+
     const dbPokemons = await this.fetchFromDB();
 
     let allPokemons: PokemonAttributes[] = [...apiPokemons, ...dbPokemons];
@@ -48,7 +62,14 @@ export class PokemonService {
   async getById(id: string | number) {
     const isNumericId = typeof id === 'number' || !isNaN(Number(id));
 
-    if (isNumericId && Number(id) <= 40) {
+    if (isNumericId && Number(id) <= 1302) {
+      const cachedPokemons = await cacheService.getAllPokemons();
+
+      if (cachedPokemons) {
+        const apiPokemon = cachedPokemons.find((p) => p.id == id);
+        if (apiPokemon) return apiPokemon;
+      }
+
       const apiPokemons = await fetchPokemonFromAPI();
       const apiPokemon = apiPokemons.find((p) => p.id == id);
       if (apiPokemon) return apiPokemon;
