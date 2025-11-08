@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getRoutes } from '../../../constants';
 import styles from './PokemonCard.module.css';
 
 interface PokemonCardProps {
@@ -15,7 +16,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ id, name, types, sprite }) =>
 
   return (
     <div className={styles.container}>
-      <Link className={styles.name} to={`/details/${id}`}>
+      <Link className={styles.name} to={getRoutes.pokemonDetails(id)}>
         <h1>{name.toUpperCase()}</h1>
         <div>
           <div>{pokemonNumber}</div>
