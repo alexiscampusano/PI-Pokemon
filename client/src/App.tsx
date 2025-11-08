@@ -18,18 +18,18 @@ function App() {
           }
         />
         <Route
-          path={ROUTES.POKEMON_DETAILS}
-          element={
-            <MainLayout>
-              <PokemonDetails />
-            </MainLayout>
-          }
-        />
-        <Route
           path={ROUTES.CREATE_POKEMON}
           element={
             <MainLayout>
               <CreatePokemon />
+            </MainLayout>
+          }
+        />
+        <Route
+          path={ROUTES.POKEMON_DETAILS}
+          element={
+            <MainLayout>
+              <PokemonDetails />
             </MainLayout>
           }
         />
