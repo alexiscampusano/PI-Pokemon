@@ -21,12 +21,7 @@ const SearchBar: React.FC = () => {
 
   return (
     <div className={styles.searchBar}>
-      <input
-        type="text"
-        placeholder="Pokemon name..."
-        value={name}
-        onChange={handleInputChange}
-      />
+      <input type="text" placeholder="Pokemon name..." value={name} onChange={handleInputChange} />
       <button type="submit" onClick={handleSubmit}>
         Search
       </button>
@@ -35,4 +30,3 @@ const SearchBar: React.FC = () => {
 };
 
 export default SearchBar;
-

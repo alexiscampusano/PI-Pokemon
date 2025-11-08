@@ -91,7 +91,7 @@ const CreatePokemon: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(input);
-    
+
     if (Object.keys(validationErrors).length === 0) {
       const pokemonData: CreatePokemonPayload = {
         name: input.name,
@@ -103,7 +103,7 @@ const CreatePokemon: React.FC = () => {
         height: Number(input.height),
         types: input.types,
       };
-      
+
       dispatch(createPokemon(pokemonData));
       alert('Pokemon created successfully!');
       navigate('/pokemons');
@@ -143,12 +143,7 @@ const CreatePokemon: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <div>
           <label>Name:</label>
-          <input
-            type="text"
-            value={input.name}
-            name="name"
-            onChange={handleChange}
-          />
+          <input type="text" value={input.name} name="name" onChange={handleChange} />
           {errors.name && <p>{errors.name}</p>}
         </div>
         <div>
@@ -201,24 +196,12 @@ const CreatePokemon: React.FC = () => {
         </div>
         <div>
           <label>Weight:</label>
-          <input
-            type="number"
-            value={input.weight}
-            name="weight"
-            min="0"
-            onChange={handleChange}
-          />
+          <input type="number" value={input.weight} name="weight" min="0" onChange={handleChange} />
           {errors.weight && <p>{errors.weight}</p>}
         </div>
         <div>
           <label>Height:</label>
-          <input
-            type="number"
-            value={input.height}
-            name="height"
-            min="0"
-            onChange={handleChange}
-          />
+          <input type="number" value={input.height} name="height" min="0" onChange={handleChange} />
           {errors.height && <p>{errors.height}</p>}
         </div>
 
@@ -253,4 +236,3 @@ const CreatePokemon: React.FC = () => {
 };
 
 export default CreatePokemon;
-

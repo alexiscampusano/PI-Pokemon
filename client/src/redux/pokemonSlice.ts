@@ -33,13 +33,10 @@ export interface PokemonState {
 }
 
 // Thunks asíncronos
-export const fetchAllPokemons = createAsyncThunk<Pokemon[]>(
-  'pokemon/fetchAll',
-  async () => {
-    const response = await axios.get<Pokemon[]>(`${API_URL}/pokemons`);
-    return response.data;
-  }
-);
+export const fetchAllPokemons = createAsyncThunk<Pokemon[]>('pokemon/fetchAll', async () => {
+  const response = await axios.get<Pokemon[]>(`${API_URL}/pokemons`);
+  return response.data;
+});
 
 export const fetchPokemonByName = createAsyncThunk<Pokemon[], string>(
   'pokemon/fetchByName',
@@ -57,13 +54,10 @@ export const fetchPokemonDetails = createAsyncThunk<Pokemon, string | number>(
   }
 );
 
-export const fetchTypes = createAsyncThunk<PokemonType[]>(
-  'pokemon/fetchTypes',
-  async () => {
-    const response = await axios.get<PokemonType[]>(`${API_URL}/types`);
-    return response.data;
-  }
-);
+export const fetchTypes = createAsyncThunk<PokemonType[]>('pokemon/fetchTypes', async () => {
+  const response = await axios.get<PokemonType[]>(`${API_URL}/types`);
+  return response.data;
+});
 
 export interface CreatePokemonPayload {
   name: string;
@@ -218,13 +212,7 @@ const pokemonSlice = createSlice({
   },
 });
 
-export const {
-  filterByType,
-  filterByCreated,
-  orderByName,
-  orderByAttack,
-  cleanDetails,
-} = pokemonSlice.actions;
+export const { filterByType, filterByCreated, orderByName, orderByAttack, cleanDetails } =
+  pokemonSlice.actions;
 
 export default pokemonSlice.reducer;
-

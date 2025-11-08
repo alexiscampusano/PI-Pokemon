@@ -27,4 +27,3 @@ const Paginated: React.FC<PaginatedProps> = ({ pokemonsPerPage, allPokemons, pag
 };
 
 export default Paginated;
-

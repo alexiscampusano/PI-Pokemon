@@ -68,13 +68,13 @@ button:hover {
   background-color: #5568d3;
 }
 
-button[type="button"] {
+button[type='button'] {
   background-color: #f44336;
   padding: 0.25rem 0.75rem;
   margin-left: 0.5rem;
 }
 
-button[type="button"]:hover {
+button[type='button']:hover {
   background-color: #d32f2f;
 }
 
@@ -93,4 +93,3 @@ button[type="button"]:hover {
   border-radius: 1rem;
   font-weight: bold;
 }
-

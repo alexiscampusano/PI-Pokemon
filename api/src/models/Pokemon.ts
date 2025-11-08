@@ -15,10 +15,14 @@ export interface PokemonAttributes {
 }
 
 // Optional fields for creation
-interface PokemonCreationAttributes extends Optional<PokemonAttributes, 'id' | 'sprite' | 'createdInDb'> {}
+interface PokemonCreationAttributes
+  extends Optional<PokemonAttributes, 'id' | 'sprite' | 'createdInDb'> {}
 
 // Model class
-export class Pokemon extends Model<PokemonAttributes, PokemonCreationAttributes> implements PokemonAttributes {
+export class Pokemon
+  extends Model<PokemonAttributes, PokemonCreationAttributes>
+  implements PokemonAttributes
+{
   public id!: string;
   public name!: string;
   public hp?: number;
@@ -93,4 +97,3 @@ export default (sequelize: Sequelize): typeof Pokemon => {
 
   return Pokemon;
 };
-

@@ -60,4 +60,3 @@ const PokemonDetails: React.FC = () => {
 };
 
 export default PokemonDetails;
-

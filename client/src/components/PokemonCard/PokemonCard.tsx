@@ -10,11 +10,8 @@ interface PokemonCardProps {
 
 const PokemonCard: React.FC<PokemonCardProps> = ({ id, name, types, sprite }) => {
   const idString = id.toString();
-  const pokemonNumber = idString.length === 1 
-    ? `N.° 00${id}` 
-    : idString.length === 2 
-    ? `N.° 0${id}` 
-    : `N.° ${id}`;
+  const pokemonNumber =
+    idString.length === 1 ? `N.° 00${id}` : idString.length === 2 ? `N.° 0${id}` : `N.° ${id}`;
 
   return (
     <div className={styles.container}>
@@ -23,11 +20,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ id, name, types, sprite }) =>
         <div>
           <div>{pokemonNumber}</div>
           <div>
-            <img
-              className={styles.pokeSprite}
-              src={sprite}
-              alt={name}
-            />
+            <img className={styles.pokeSprite} src={sprite} alt={name} />
           </div>
           <div className={styles.types}>
             {types?.map((type) => (
@@ -41,4 +34,3 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ id, name, types, sprite }) =>
 };
 
 export default PokemonCard;
-

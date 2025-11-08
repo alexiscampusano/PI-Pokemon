@@ -13,17 +13,15 @@ if (!DB_USER || !DB_PASSWORD || !DB_HOST) {
   throw new Error('Missing database environment variables');
 }
 
-const sequelize = new Sequelize(
-  `postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/pokemon`,
-  {
-    logging: false, // set to console.log to see the raw SQL queries
-    native: false, // lets Sequelize know we can use pg-native for ~30% more speed
-  }
-);
+const sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/pokemon`, {
+  logging: false, // set to console.log to see the raw SQL queries
+  native: false, // lets Sequelize know we can use pg-native for ~30% more speed
+});
 
 const basename = path.basename(__filename);
 
-const modelDefiners: Array<(sequelize: Sequelize) => any> = [];
+// eslint-disable-next-line no-unused-vars
+const modelDefiners: Array<(sequelize: Sequelize) => void> = [];
 
 // Read all files from the Models folder
 fs.readdirSync(path.join(__dirname, '/models'))
@@ -61,11 +59,6 @@ const { Pokemon: PokemonModel, Type: TypeModel } = sequelize.models as {
 PokemonModel.belongsToMany(TypeModel, { through: 'pokemons_type' });
 TypeModel.belongsToMany(PokemonModel, { through: 'pokemons_type' });
 
-export {
-  PokemonModel as Pokemon,
-  TypeModel as Type,
-  sequelize as conn,
-};
+export { PokemonModel as Pokemon, TypeModel as Type, sequelize as conn };
 
 export default sequelize;
-
