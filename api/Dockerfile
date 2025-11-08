@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+RUN apk add --no-cache postgresql-client
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3001
+
+CMD ["npm", "run", "dev"]
+
