@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  fetchAllPokemons,
+  fetchPokemons,
   fetchTypes,
-  filterByType,
-  filterByCreated,
-  orderByName,
-  orderByAttack,
+  setFilters,
+  resetFilters,
+  setPage,
 } from '../../redux/pokemonSlice';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import PokemonCard from '../PokemonCard/PokemonCard';
@@ -16,53 +15,58 @@ import styles from './Home.module.css';
 
 const Home: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { pokemons, types, loading } = useAppSelector((state) => state.pokemon);
-
-  // Paginado
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pokemonsPerPage = 12;
-
-  const indexOfLastPokemon = currentPage * pokemonsPerPage;
-  const indexOfFirstPokemon = indexOfLastPokemon - pokemonsPerPage;
-  const currentPokemons = pokemons.slice(indexOfFirstPokemon, indexOfLastPokemon);
-
-  const paginated = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
+  const { pokemons, types, loading, pagination, filters } = useAppSelector(
+    (state) => state.pokemon
+  );
 
   useEffect(() => {
-    dispatch(fetchAllPokemons());
+    dispatch(fetchPokemons(filters));
     dispatch(fetchTypes());
-  }, [dispatch]);
+  }, [dispatch, filters]);
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    dispatch(fetchAllPokemons());
-    setCurrentPage(1);
+  const handleReload = () => {
+    dispatch(resetFilters());
   };
 
   const handleFilterType = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(filterByType(e.target.value));
-    setCurrentPage(1);
+    const type = e.target.value === 'All' ? undefined : e.target.value;
+    dispatch(setFilters({ type, page: 1 }));
   };
 
   const handleFilterCreated = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(filterByCreated(e.target.value));
-    setCurrentPage(1);
+    let createdInDb: boolean | undefined;
+    if (e.target.value === 'Created') {
+      createdInDb = true;
+    } else if (e.target.value === 'Existing') {
+      createdInDb = false;
+    } else {
+      createdInDb = undefined;
+    }
+    dispatch(setFilters({ createdInDb, page: 1 }));
   };
 
   const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    e.preventDefault();
-    const value = e.target.value as 'Asc' | 'Desc';
-    dispatch(orderByName(value));
-    setCurrentPage(1);
+    const value = e.target.value;
+    if (value === 'None') {
+      dispatch(setFilters({ sortBy: undefined, order: undefined, page: 1 }));
+    } else {
+      const order = value === 'Asc' ? 'ASC' : 'DESC';
+      dispatch(setFilters({ sortBy: 'name', order, page: 1 }));
+    }
   };
 
   const handleOrderByAttack = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    e.preventDefault();
-    const value = e.target.value as 'Asc' | 'Desc';
-    dispatch(orderByAttack(value));
-    setCurrentPage(1);
+    const value = e.target.value;
+    if (value === 'None') {
+      dispatch(setFilters({ sortBy: undefined, order: undefined, page: 1 }));
+    } else {
+      const order = value === 'Asc' ? 'ASC' : 'DESC';
+      dispatch(setFilters({ sortBy: 'attack', order, page: 1 }));
+    }
+  };
+
+  const handlePageChange = (pageNumber: number) => {
+    dispatch(setPage(pageNumber));
   };
 
   return (
@@ -72,46 +76,54 @@ const Home: React.FC = () => {
       </button>
       <div className={styles.filters}>
         <label>By Types</label>
-        <select onChange={handleFilterType}>
+        <select onChange={handleFilterType} value={filters.type || 'All'}>
           <option value="All">All</option>
           {types?.map((type) => (
-            <option key={type.id} value={type.name}>
+            <option key={type.id || type.name} value={type.name}>
               {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
             </option>
           ))}
         </select>
 
         <label>By Origin</label>
-        <select onChange={handleFilterCreated}>
+        <select
+          onChange={handleFilterCreated}
+          value={
+            filters.createdInDb === undefined ? 'All' : filters.createdInDb ? 'Created' : 'Existing'
+          }
+        >
           <option value="All">All</option>
           <option value="Created">Created</option>
-          <option value="api">Existing</option>
+          <option value="Existing">Existing</option>
         </select>
 
         <label>By Alphabetic Order</label>
-        <select onChange={handleSort}>
-          <option value="None" hidden>
-            None
-          </option>
+        <select
+          onChange={handleSort}
+          value={filters.sortBy === 'name' ? (filters.order === 'ASC' ? 'Asc' : 'Desc') : 'None'}
+        >
+          <option value="None">None</option>
           <option value="Asc">A-Z</option>
           <option value="Desc">Z-A</option>
         </select>
 
         <label>By Power Order</label>
-        <select onChange={handleOrderByAttack}>
-          <option value="None" hidden>
-            None
-          </option>
+        <select
+          onChange={handleOrderByAttack}
+          value={filters.sortBy === 'attack' ? (filters.order === 'ASC' ? 'Asc' : 'Desc') : 'None'}
+        >
+          <option value="None">None</option>
           <option value="Asc">Power Min</option>
           <option value="Desc">Power Max</option>
         </select>
 
-        <button onClick={handleClick}>Reset</button>
+        <button onClick={handleReload}>Reset</button>
 
         <Paginated
-          pokemonsPerPage={pokemonsPerPage}
-          allPokemons={pokemons.length}
-          paginated={paginated}
+          pokemonsPerPage={pagination.limit}
+          allPokemons={pagination.total}
+          paginated={handlePageChange}
+          currentPage={pagination.page}
         />
 
         <Link to="/pokemon">Create Pokémon</Link>
@@ -121,7 +133,7 @@ const Home: React.FC = () => {
           <div>Loading...</div>
         ) : (
           <div className={styles.cards}>
-            {currentPokemons?.map((pokemon) => (
+            {pokemons?.map((pokemon) => (
               <div key={pokemon.id}>
                 <PokemonCard
                   id={pokemon.id}

@@ -1,169 +1,157 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3001';
-
-// Types & Interfaces
-export interface PokemonType {
-  id: number;
-  name: string;
-}
-
-export interface Pokemon {
-  id: number | string;
-  name: string;
-  sprite: string;
-  types: PokemonType[];
-  hp?: number;
-  attack?: number;
-  defense?: number;
-  speed?: number;
-  height?: number;
-  weight?: number;
-  createdInDb?: boolean;
-}
+import { pokemonAPI } from '../services/api';
+import { Pokemon, PokemonType, PokemonFilters, CreatePokemonPayload } from '../types/api';
 
 export interface PokemonState {
   pokemons: Pokemon[];
-  allPokemons: Pokemon[];
   types: PokemonType[];
   details: Pokemon | null;
   loading: boolean;
   error: string | null;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  filters: PokemonFilters;
 }
-
-// Thunks asíncronos
-export const fetchAllPokemons = createAsyncThunk<Pokemon[]>('pokemon/fetchAll', async () => {
-  const response = await axios.get<Pokemon[]>(`${API_URL}/pokemons`);
-  return response.data;
-});
-
-export const fetchPokemonByName = createAsyncThunk<Pokemon[], string>(
-  'pokemon/fetchByName',
-  async (name: string) => {
-    const response = await axios.get<Pokemon[]>(`${API_URL}/pokemons?name=${name}`);
-    return response.data;
-  }
-);
-
-export const fetchPokemonDetails = createAsyncThunk<Pokemon, string | number>(
-  'pokemon/fetchDetails',
-  async (id: string | number) => {
-    const response = await axios.get<Pokemon>(`${API_URL}/pokemons/${id}`);
-    return response.data;
-  }
-);
-
-export const fetchTypes = createAsyncThunk<PokemonType[]>('pokemon/fetchTypes', async () => {
-  const response = await axios.get<PokemonType[]>(`${API_URL}/types`);
-  return response.data;
-});
-
-export interface CreatePokemonPayload {
-  name: string;
-  hp: number;
-  attack: number;
-  defense: number;
-  speed: number;
-  weight: number;
-  height: number;
-  types: string[];
-}
-
-export const createPokemon = createAsyncThunk<Pokemon, CreatePokemonPayload>(
-  'pokemon/create',
-  async (pokemonData: CreatePokemonPayload) => {
-    const response = await axios.post<Pokemon>(`${API_URL}/pokemon`, pokemonData);
-    return response.data;
-  }
-);
 
 const initialState: PokemonState = {
   pokemons: [],
-  allPokemons: [],
   types: [],
   details: null,
   loading: false,
   error: null,
+  pagination: {
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0,
+  },
+  filters: {
+    page: 1,
+    limit: 12,
+  },
 };
+
+// Async thunks
+export const fetchPokemons = createAsyncThunk(
+  'pokemon/fetchPokemons',
+  async (filters: PokemonFilters, { rejectWithValue }) => {
+    try {
+      const response = await pokemonAPI.getAll(filters);
+      if (!response.success) {
+        return rejectWithValue(response.error || 'Failed to fetch pokemons');
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue('Network error');
+    }
+  }
+);
+
+export const fetchPokemonDetails = createAsyncThunk(
+  'pokemon/fetchDetails',
+  async (id: string | number, { rejectWithValue }) => {
+    try {
+      const response = await pokemonAPI.getById(id);
+      if (!response.success) {
+        return rejectWithValue(response.error || 'Failed to fetch pokemon');
+      }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Network error');
+    }
+  }
+);
+
+export const fetchTypes = createAsyncThunk('pokemon/fetchTypes', async (_, { rejectWithValue }) => {
+  try {
+    const response = await pokemonAPI.getAllTypes();
+    if (!response.success) {
+      return rejectWithValue(response.error || 'Failed to fetch types');
+    }
+    return response.data;
+  } catch (error) {
+    return rejectWithValue('Network error');
+  }
+});
+
+export const createPokemon = createAsyncThunk(
+  'pokemon/create',
+  async (pokemonData: CreatePokemonPayload, { rejectWithValue }) => {
+    try {
+      const response = await pokemonAPI.create(pokemonData);
+      if (!response.success) {
+        return rejectWithValue(response.error || 'Failed to create pokemon');
+      }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Network error');
+    }
+  }
+);
+
+export const deletePokemon = createAsyncThunk(
+  'pokemon/delete',
+  async (id: string | number, { rejectWithValue }) => {
+    try {
+      const response = await pokemonAPI.delete(id);
+      if (!response.success) {
+        return rejectWithValue(response.error || 'Failed to delete pokemon');
+      }
+      return id;
+    } catch (error) {
+      return rejectWithValue('Network error');
+    }
+  }
+);
 
 const pokemonSlice = createSlice({
   name: 'pokemon',
   initialState,
   reducers: {
-    // Filtros y ordenamiento - acciones síncronas
-    filterByType: (state, action: PayloadAction<string>) => {
-      if (action.payload === 'All') {
-        state.pokemons = state.allPokemons;
-      } else {
-        state.pokemons = state.allPokemons.filter((pokemon) =>
-          pokemon.types.some((type) => type.name === action.payload)
-        );
-      }
+    setFilters: (state, action: PayloadAction<Partial<PokemonFilters>>) => {
+      state.filters = {
+        ...state.filters,
+        ...action.payload,
+        page: action.payload.page || 1,
+      };
     },
-    filterByCreated: (state, action: PayloadAction<string>) => {
-      if (action.payload === 'All') {
-        state.pokemons = state.allPokemons;
-      } else if (action.payload === 'Created') {
-        state.pokemons = state.allPokemons.filter((p) => p.createdInDb);
-      } else {
-        state.pokemons = state.allPokemons.filter((p) => !p.createdInDb);
-      }
+    resetFilters: (state) => {
+      state.filters = {
+        page: 1,
+        limit: 12,
+      };
     },
-    orderByName: (state, action: PayloadAction<'Asc' | 'Desc'>) => {
-      const sorted = [...state.pokemons].sort((a, b) => {
-        if (action.payload === 'Asc') {
-          return a.name.localeCompare(b.name);
-        }
-        return b.name.localeCompare(a.name);
-      });
-      state.pokemons = sorted;
-    },
-    orderByAttack: (state, action: PayloadAction<'Asc' | 'Desc'>) => {
-      const sorted = [...state.pokemons].sort((a, b) => {
-        const attackA = a.attack || 0;
-        const attackB = b.attack || 0;
-        if (action.payload === 'Asc') {
-          return attackA - attackB;
-        }
-        return attackB - attackA;
-      });
-      state.pokemons = sorted;
+    setPage: (state, action: PayloadAction<number>) => {
+      state.filters.page = action.payload;
     },
     cleanDetails: (state) => {
       state.details = null;
     },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
-    // Fetch all pokemons
+    // Fetch pokemons
     builder
-      .addCase(fetchAllPokemons.pending, (state) => {
+      .addCase(fetchPokemons.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAllPokemons.fulfilled, (state, action) => {
+      .addCase(fetchPokemons.fulfilled, (state, action) => {
         state.loading = false;
-        state.pokemons = action.payload;
-        state.allPokemons = action.payload;
+        state.pokemons = action.payload.data || [];
+        if (action.payload.pagination) {
+          state.pagination = action.payload.pagination;
+        }
       })
-      .addCase(fetchAllPokemons.rejected, (state, action) => {
+      .addCase(fetchPokemons.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch pokemons';
-      });
-
-    // Fetch pokemon by name
-    builder
-      .addCase(fetchPokemonByName.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchPokemonByName.fulfilled, (state, action) => {
-        state.loading = false;
-        state.pokemons = action.payload;
-      })
-      .addCase(fetchPokemonByName.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Pokemon not found';
+        state.error = action.payload as string;
       });
 
     // Fetch pokemon details
@@ -174,11 +162,11 @@ const pokemonSlice = createSlice({
       })
       .addCase(fetchPokemonDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.details = action.payload;
+        state.details = action.payload || null;
       })
       .addCase(fetchPokemonDetails.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch details';
+        state.error = action.payload as string;
       });
 
     // Fetch types
@@ -189,11 +177,11 @@ const pokemonSlice = createSlice({
       })
       .addCase(fetchTypes.fulfilled, (state, action) => {
         state.loading = false;
-        state.types = action.payload;
+        state.types = action.payload || [];
       })
       .addCase(fetchTypes.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch types';
+        state.error = action.payload as string;
       });
 
     // Create pokemon
@@ -207,12 +195,26 @@ const pokemonSlice = createSlice({
       })
       .addCase(createPokemon.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to create pokemon';
+        state.error = action.payload as string;
+      });
+
+    // Delete pokemon
+    builder
+      .addCase(deletePokemon.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deletePokemon.fulfilled, (state, action) => {
+        state.loading = false;
+        state.pokemons = state.pokemons.filter((p) => p.id !== action.payload);
+      })
+      .addCase(deletePokemon.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { filterByType, filterByCreated, orderByName, orderByAttack, cleanDetails } =
-  pokemonSlice.actions;
+export const { setFilters, resetFilters, setPage, cleanDetails, clearError } = pokemonSlice.actions;
 
 export default pokemonSlice.reducer;

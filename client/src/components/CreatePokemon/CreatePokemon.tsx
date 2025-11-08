@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createPokemon, fetchTypes, CreatePokemonPayload } from '../../redux/pokemonSlice';
+import { createPokemon, fetchTypes } from '../../redux/pokemonSlice';
+import { CreatePokemonPayload } from '../../types/api';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import styles from './CreatePokemon.module.css';
 
@@ -52,7 +53,7 @@ const validate = (input: FormInput): ValidationErrors => {
 const CreatePokemon: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { types } = useAppSelector((state) => state.pokemon);
+  const { types, loading, error } = useAppSelector((state) => state.pokemon);
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   const [input, setInput] = useState<FormInput>({
@@ -88,7 +89,7 @@ const CreatePokemon: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(input);
 
@@ -104,19 +105,13 @@ const CreatePokemon: React.FC = () => {
         types: input.types,
       };
 
-      dispatch(createPokemon(pokemonData));
-      alert('Pokemon created successfully!');
-      navigate('/pokemons');
-      setInput({
-        name: '',
-        hp: '',
-        attack: '',
-        defense: '',
-        speed: '',
-        weight: '',
-        height: '',
-        types: [],
-      });
+      try {
+        await dispatch(createPokemon(pokemonData)).unwrap();
+        alert('Pokemon created successfully!');
+        navigate('/pokemons');
+      } catch (err) {
+        alert(`Error: ${error || 'Failed to create pokemon'}`);
+      }
     } else {
       setErrors(validationErrors);
       alert('Please fix the errors in the form');
@@ -210,7 +205,7 @@ const CreatePokemon: React.FC = () => {
           <select value="DEFAULT" onChange={handleSelect}>
             <option value="DEFAULT">Select Type</option>
             {types?.map((type, i) => (
-              <option key={i} value={type.name}>
+              <option key={type.id || i} value={type.name}>
                 {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
               </option>
             ))}
@@ -229,7 +224,9 @@ const CreatePokemon: React.FC = () => {
           ))}
         </div>
 
-        <button type="submit">Create Now!</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creating...' : 'Create Now!'}
+        </button>
       </form>
     </div>
   );
