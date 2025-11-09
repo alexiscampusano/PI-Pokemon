@@ -255,6 +255,47 @@ export class PokemonService {
       return 0;
     });
   }
+
+  async search(query: string, limit: number = 8): Promise<PokemonAttributes[]> {
+    const lowerQuery = query.toLowerCase();
+
+    // Get all pokemons from cache and DB
+    let apiPokemons: PokemonAttributes[] = [];
+    const cachedPokemons = await cacheService.getAllPokemons();
+
+    if (cachedPokemons && cachedPokemons.length > 0) {
+      apiPokemons = cachedPokemons;
+    } else {
+      apiPokemons = await fetchPokemonFromAPI();
+    }
+
+    const dbPokemons = await this.fetchFromDB();
+    const allPokemons = [...apiPokemons, ...dbPokemons];
+
+    // Filter by query and sort by relevance
+    const results = allPokemons
+      .filter((pokemon) => pokemon.name.toLowerCase().includes(lowerQuery))
+      .sort((a, b) => {
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+
+        // Exact match first
+        if (aName === lowerQuery) return -1;
+        if (bName === lowerQuery) return 1;
+
+        // Starts with query second
+        const aStarts = aName.startsWith(lowerQuery);
+        const bStarts = bName.startsWith(lowerQuery);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+
+        // Alphabetically for the rest
+        return aName.localeCompare(bName);
+      })
+      .slice(0, limit);
+
+    return results;
+  }
 }
 
 export default new PokemonService();
